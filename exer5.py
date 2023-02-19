@@ -20,12 +20,6 @@ def callback(event):
     studentName.set(dbList[li[1]][1])
     studentEmail.set(dbList[li[1]][2])
     studentProgram.set(dbList[li[1]][3])
-    print(
-        dbList[li[1]][0],
-        dbList[li[1]][1],
-        dbList[li[1]][2],
-        dbList[li[1]][3],
-    )
 
 
 def createGrid(x):
@@ -98,7 +92,54 @@ def update():
 
 
 def studentFilter():
-    pass
+    for label in window.grid_slaves():
+        if int(label.grid_info()["row"] > 6):
+            label.grid_forget()
+
+    filterId = int(idFilterField.get())
+
+    idOption = str()
+
+    dbList.clear()
+    dbList.append(["ID", "NAME", "EMAIL", "PROGRAM"])
+    if idFilterOption.get() == ">":
+        idOption = "$gt"
+    elif idFilterOption.get() == ">=":
+        idOption = "$gte"
+    elif idFilterOption.get() == "<":
+        idOption = "$lt"
+    elif idFilterOption.get() == "<=":
+        idOption = "$lte"
+    elif idFilterOption.get() == "!=":
+        idOption = "$ne"
+    elif idFilterOption.get() == "=":
+        idOption = "$eq"
+    nameStart = f"^{nameStartFilter.get()}"
+    nameEnd = f"{nameEndFilter.get()}$"
+    mailStart = f"^{mailStartFilter.get()}"
+    program = f"^{programFilter.get()}"
+    studentsCursor = collection.find(
+        {
+            "id": {idOption: filterId},
+            "$and": [{"name": {"$regex": nameStart}}, {"name": {"$regex": nameEnd}}],
+            "email": {"$regex": mailStart},
+            "program": {"$regex": program},
+        }
+    )
+    for entry in studentsCursor:
+        entryId = entry["id"]
+        entryName = entry["name"]
+        entryEmail = entry["email"]
+        entryProgram = entry["program"]
+        dbList.append([entryId, entryName, entryEmail, entryProgram])
+
+    for i in range(len(dbList)):
+        for j in range(len(dbList[0])):
+            mgrid = tk.Entry(window, width=10)
+            mgrid.insert(tk.END, dbList[i][j])
+            mgrid._values = mgrid.get(), i
+            mgrid.grid(column=j + 6, row=i + 7)
+            mgrid.bind("<Button-1>", callback)
 
 
 # ! Window
@@ -226,14 +267,14 @@ filterLabel.grid(column=6, row=2, columnspan=4)
 # * ID Filter Option Menu
 idFilterLabel = tk.Label(window, text="ID", bg="orange")
 idFilterLabel.grid(column=6, row=4)
-idFilterOptions = [">", ">=", "<", "<=", "!=", "!="]
+idFilterOptions = [">", ">=", "<", "<=", "!=", "="]
 idFilterOption = tk.StringVar(window)
 idFilterOption.set(idFilterOptions[0])
 idFilterDrpDwn = tk.OptionMenu(window, idFilterOption, *idFilterOptions)
 idFilterDrpDwn.grid(column=6, row=5)
 
 # * ID Filter Text Field
-idFilter = tk.StringVar()
+idFilter = tk.IntVar()
 idFilterField = tk.Entry(window, textvariable=idFilter, width=10)
 idFilterField.grid(column=6, row=6)
 
