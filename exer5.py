@@ -44,7 +44,7 @@ def createGrid(x):
             mgrid = tk.Entry(window, width=10)
             mgrid.insert(tk.END, dbList[i][j])
             mgrid._values = mgrid.get(), i
-            mgrid.grid(row=i + 7, column=j + 6)
+            mgrid.grid(column=j + 6, row=i + 7)
             mgrid.bind("<Button-1>", callback)
 
     if x == 1:
@@ -97,13 +97,21 @@ def update():
         createGrid(0)
 
 
-# * Window
+def studentFilter():
+    pass
+
+
+# ! Window
 window = tk.Tk()
 window.title("Students Form")
 window.geometry("1000x750")
 window.configure(bg="purple")
+createGrid(0)
 
-# * Menubar
+
+# ! End of Window
+
+# ! Menubar
 menubar = tk.Menu(window)
 filemenu = tk.Menu(menubar, tearoff=0)
 menubar.add_cascade(label="File", menu=filemenu)
@@ -120,7 +128,9 @@ editmenu.add_command(label="Cut", command=TeacherForm.teacherform)
 
 window.config(menu=menubar)
 
-# * Labels
+# ! End of Menubar
+
+# ! Labels
 titleBar = tk.Label(
     window,
     text="Students Enlistment Form",
@@ -172,7 +182,9 @@ idLabel = tk.Label(
 )
 idLabel.grid(column=1, row=5)
 
-# * Enter Fields
+# ! End of Labels
+
+# ! Enter Fields
 studentId = tk.StringVar()
 idField = tk.Entry(window, textvariable=studentId, state=tk.DISABLED)
 idField.grid(column=2, row=2)
@@ -189,9 +201,9 @@ studentProgram = tk.StringVar()
 programField = tk.Entry(window, textvariable=studentProgram, width=40)
 programField.grid(column=2, row=5)
 
-createGrid(0)
+# ! End of Enter Fields
 
-# * Buttons
+# ! Buttons
 saveBtn = tk.Button(text="Save", command=save, width=25)
 saveBtn.grid(column=1, row=6)
 
@@ -200,5 +212,59 @@ updateBtn.grid(column=2, row=6)
 
 deleteBtn = tk.Button(text="Delete", command=delete, width=25)
 deleteBtn.grid(column=3, row=6)
+
+filterBtn = tk.Button(text="Filter", command=studentFilter, width=10, bg="deep pink")
+filterBtn.grid(column=10, row=6)
+
+# ! End of Buttons
+
+# ! Filters
+filterLabel = tk.Label(
+    window, text="Filters", bg="cyan", font="Robot 12 bold", width=30
+)
+filterLabel.grid(column=6, row=2, columnspan=4)
+# * ID Filter Option Menu
+idFilterLabel = tk.Label(window, text="ID", bg="orange")
+idFilterLabel.grid(column=6, row=4)
+idFilterOptions = [">", ">=", "<", "<=", "!=", "!="]
+idFilterOption = tk.StringVar(window)
+idFilterOption.set(idFilterOptions[0])
+idFilterDrpDwn = tk.OptionMenu(window, idFilterOption, *idFilterOptions)
+idFilterDrpDwn.grid(column=6, row=5)
+
+# * ID Filter Text Field
+idFilter = tk.StringVar()
+idFilterField = tk.Entry(window, textvariable=idFilter, width=10)
+idFilterField.grid(column=6, row=6)
+
+# * Name Start Text Field
+nameStartLabel = tk.Label(window, text="Name Start", bg="orange")
+nameStartLabel.grid(column=7, row=3)
+nameStartFilter = tk.StringVar()
+nameStartFilterField = tk.Entry(window, textvariable=nameStartFilter, width=10)
+nameStartFilterField.grid(column=7, row=4)
+
+# * Name End Text Field
+nameEndLabel = tk.Label(window, text="Name End", bg="orange")
+nameEndLabel.grid(column=7, row=5)
+nameEndFilter = tk.StringVar()
+nameEndFilterField = tk.Entry(window, textvariable=nameEndFilter, width=10)
+nameEndFilterField.grid(column=7, row=6)
+
+# * Mail Start Text Field
+mailStartLabel = tk.Label(window, text="Mail Start", bg="orange")
+mailStartLabel.grid(column=8, row=5)
+mailStartFilter = tk.StringVar()
+mailStartFilterField = tk.Entry(window, textvariable=mailStartFilter, width=10)
+mailStartFilterField.grid(column=8, row=6)
+
+# * Program Text Field
+programLabel = tk.Label(window, text="Program", bg="orange")
+programLabel.grid(column=9, row=5)
+programFilter = tk.StringVar()
+programFilterField = tk.Entry(window, textvariable=programFilter, width=10)
+programFilterField.grid(column=9, row=6)
+
+# ! End of Filters
 
 window.mainloop()
