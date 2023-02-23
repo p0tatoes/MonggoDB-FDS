@@ -186,4 +186,54 @@ class TeacherForm:
         )
         deleteBtn.grid(column=3, row=6)
 
+        # TODO: Refactor to filter teacher entries
+        # ! Filters
+        filterLabel = tk.Label(
+            teacherwindow, text="Filters", bg="cyan", font="Robot 12 bold", width=30
+        )
+        filterLabel.grid(column=6, row=2, columnspan=4)
+        # * ID Filter Option Menu
+        idFilterLabel = tk.Label(teacherwindow, text="ID", bg="orange")
+        idFilterLabel.grid(column=6, row=4)
+        idFilterOptions = [">", ">=", "<", "<=", "!=", "="]
+        idFilterOption = tk.StringVar(teacherwindow)
+        idFilterOption.set(idFilterOptions[0])
+        idFilterDrpDwn = tk.OptionMenu(teacherwindow, idFilterOption, *idFilterOptions)
+        idFilterDrpDwn.grid(column=6, row=5)
+
+        # * ID Filter Text Field
+        idFilter = tk.IntVar()
+        idFilterField = tk.Entry(teacherwindow, textvariable=idFilter, width=10)
+        idFilterField.grid(column=6, row=6)
+
+        # * Name Start Text Field
+        nameStartLabel = tk.Label(teacherwindow, text="Name Start", bg="orange")
+        nameStartLabel.grid(column=7, row=3)
+        nameStartFilter = tk.StringVar()
+        nameStartFilterField = tk.Entry(teacherwindow, textvariable=nameStartFilter, width=10)
+        nameStartFilterField.grid(column=7, row=4)
+
+        # * Name End Text Field
+        nameEndLabel = tk.Label(teacherwindow, text="Name End", bg="orange")
+        nameEndLabel.grid(column=7, row=5)
+        nameEndFilter = tk.StringVar()
+        nameEndFilterField = tk.Entry(teacherwindow, textvariable=nameEndFilter, width=10)
+        nameEndFilterField.grid(column=7, row=6)
+
+        # * Mail Start Text Field
+        mailStartLabel = tk.Label(teacherwindow, text="Mail Start", bg="orange")
+        mailStartLabel.grid(column=8, row=5)
+        mailStartFilter = tk.StringVar()
+        mailStartFilterField = tk.Entry(teacherwindow, textvariable=mailStartFilter, width=10)
+        mailStartFilterField.grid(column=8, row=6)
+
+        # * Program Text Field
+        programLabel = tk.Label(teacherwindow, text="Program", bg="orange")
+        programLabel.grid(column=9, row=5)
+        programFilter = tk.StringVar()
+        programFilterField = tk.Entry(teacherwindow, textvariable=programFilter, width=10)
+        programFilterField.grid(column=9, row=6)
+
+        # ! End of Filters
+
         teacherwindow.mainloop()
