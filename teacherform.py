@@ -4,7 +4,6 @@ from tkinter import messagebox
 import pymongo
 
 
-# TODO: add a mongodb collection containing teacher's id, name, department, contact number
 class TeacherForm:
     def teacherform():
         client = pymongo.MongoClient("mongodb://127.0.0.1:27017")
@@ -44,7 +43,7 @@ class TeacherForm:
                     mgrid = tk.Entry(teacherwindow, width=10)
                     mgrid.insert(tk.END, dbList[i][j])
                     mgrid._values = mgrid.get(), i
-                    mgrid.grid(row=i + 8, column=j + 6)
+                    mgrid.grid(column=j + 6, row=i + 8)
                     mgrid.bind("<Button-1>", callback)
 
             if x == 1:
@@ -92,6 +91,59 @@ class TeacherForm:
                 collection.update_one(idQuery, updateValues)
                 createGrid(1)
                 createGrid(0)
+
+        def teachersFilter():
+            for label in teacherwindow.grid_slaves():
+                if int(label.grid_info()["row"] > 7):
+                    label.grid_forget()
+
+            filterId = int(idFilterField.get())
+
+            idOption = str()
+
+            dbList.clear()
+            dbList.append(["ID", "NAME", "DEPARTMENT", "CONTACT #"])
+            if idFilterOption.get() == ">":
+                idOption = "$gt"
+            elif idFilterOption.get() == ">=":
+                idOption = "$gte"
+            elif idFilterOption.get() == "<":
+                idOption = "$lt"
+            elif idFilterOption.get() == "<=":
+                idOption = "$lte"
+            elif idFilterOption.get() == "!=":
+                idOption = "$ne"
+            elif idFilterOption.get() == "=":
+                idOption = "$eq"
+            nameStart = f"^{nameStartFilter.get()}"
+            nameEnd = f"{nameEndFilter.get()}$"
+            department = f"^{departmentFilterField.get()}"
+            contact = f"^{contactFilterField.get()}"
+            teachersCursor = collection.find(
+                {
+                    "id": {idOption: filterId},
+                    "$and": [
+                        {"name": {"$regex": nameStart}},
+                        {"name": {"$regex": nameEnd}},
+                    ],
+                    "department": {"$regex": department},
+                    "contactNumber": {"$regex": contact},
+                }
+            )
+            for entry in teachersCursor:
+                entryId = entry["id"]
+                entryName = entry["name"]
+                entryDep = entry["department"]
+                entryContact = entry["contactNumber"]
+                dbList.append([entryId, entryName, entryDep, entryContact])
+
+            for i in range(len(dbList)):
+                for j in range(len(dbList[0])):
+                    mgrid = tk.Entry(teacherwindow, width=10)
+                    mgrid.insert(tk.END, dbList[i][j])
+                    mgrid._values = mgrid.get(), i
+                    mgrid.grid(column=j + 6, row=i + 8)
+                    mgrid.bind("<Button-1>", callback)
 
         # * teacherwindow
         teacherwindow = tk.Tk()
@@ -186,7 +238,6 @@ class TeacherForm:
         )
         deleteBtn.grid(column=3, row=6)
 
-        # TODO: Refactor to filter teacher entries
         # ! Filters
         filterLabel = tk.Label(
             teacherwindow, text="Filters", bg="cyan", font="Robot 12 bold", width=30
@@ -202,37 +253,55 @@ class TeacherForm:
         idFilterDrpDwn.grid(column=6, row=5)
 
         # * ID Filter Text Field
-        idFilter = tk.IntVar()
+        idFilter = tk.IntVar(teacherwindow)
         idFilterField = tk.Entry(teacherwindow, textvariable=idFilter, width=10)
         idFilterField.grid(column=6, row=6)
 
         # * Name Start Text Field
         nameStartLabel = tk.Label(teacherwindow, text="Name Start", bg="orange")
         nameStartLabel.grid(column=7, row=3)
-        nameStartFilter = tk.StringVar()
-        nameStartFilterField = tk.Entry(teacherwindow, textvariable=nameStartFilter, width=10)
+        nameStartFilter = tk.StringVar(teacherwindow)
+        nameStartFilterField = tk.Entry(
+            teacherwindow, textvariable=nameStartFilter, width=10
+        )
         nameStartFilterField.grid(column=7, row=4)
 
         # * Name End Text Field
         nameEndLabel = tk.Label(teacherwindow, text="Name End", bg="orange")
         nameEndLabel.grid(column=7, row=5)
-        nameEndFilter = tk.StringVar()
-        nameEndFilterField = tk.Entry(teacherwindow, textvariable=nameEndFilter, width=10)
+        nameEndFilter = tk.StringVar(teacherwindow)
+        nameEndFilterField = tk.Entry(
+            teacherwindow, textvariable=nameEndFilter, width=10
+        )
         nameEndFilterField.grid(column=7, row=6)
 
-        # * Mail Start Text Field
-        mailStartLabel = tk.Label(teacherwindow, text="Mail Start", bg="orange")
-        mailStartLabel.grid(column=8, row=5)
-        mailStartFilter = tk.StringVar()
-        mailStartFilterField = tk.Entry(teacherwindow, textvariable=mailStartFilter, width=10)
-        mailStartFilterField.grid(column=8, row=6)
+        # * Department Start Text Field
+        departmentFilterLabel = tk.Label(teacherwindow, text="Department", bg="orange")
+        departmentFilterLabel.grid(column=8, row=5)
+        departmentFilter = tk.StringVar(teacherwindow)
+        departmentFilterField = tk.Entry(
+            teacherwindow, textvariable=departmentFilter, width=10
+        )
+        departmentFilterField.grid(column=8, row=6)
 
-        # * Program Text Field
-        programLabel = tk.Label(teacherwindow, text="Program", bg="orange")
-        programLabel.grid(column=9, row=5)
-        programFilter = tk.StringVar()
-        programFilterField = tk.Entry(teacherwindow, textvariable=programFilter, width=10)
-        programFilterField.grid(column=9, row=6)
+        # * Contact Number Start Text Field
+        contactFilterLabel = tk.Label(teacherwindow, text="Contact #", bg="orange")
+        contactFilterLabel.grid(column=9, row=5)
+        contactFilter = tk.StringVar(teacherwindow)
+        contactFilterField = tk.Entry(
+            teacherwindow, textvariable=contactFilter, width=10
+        )
+        contactFilterField.grid(column=9, row=6)
+
+        # * Filter Button
+        filterBtn = tk.Button(
+            teacherwindow,
+            text="Filter",
+            command=teachersFilter,
+            width=10,
+            bg="deep pink",
+        )
+        filterBtn.grid(column=10, row=6)
 
         # ! End of Filters
 
