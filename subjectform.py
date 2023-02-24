@@ -272,7 +272,6 @@ class SubjectForm:
         )
         deleteBtn.grid(column=3, row=7)
 
-        # TODO: Refactor to filter subjects
         # ! Filters
         filterLabel = tk.Label(
             subjectWindow, text="Filters", bg="cyan", font="Robot 12 bold", width=30
