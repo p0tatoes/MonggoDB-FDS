@@ -4,7 +4,6 @@ from tkinter import messagebox
 import pymongo
 
 
-# TODO: add mongodb collection containing subject's id, code, description, units, schedule
 class SubjectForm:
     def subjectform():
         client = pymongo.MongoClient("mongodb://127.0.0.1:27017")
@@ -49,7 +48,7 @@ class SubjectForm:
                     mgrid = tk.Entry(subjectWindow, width=10)
                     mgrid.insert(tk.END, dbList[i][j])
                     mgrid._values = mgrid.get(), i
-                    mgrid.grid(row=i + 8, column=j + 6)
+                    mgrid.grid(column=j + 6, row=i + 8)
                     mgrid.bind("<Button-1>", callback)
 
             if x == 1:
@@ -99,6 +98,74 @@ class SubjectForm:
                 collection.update_one(idQuery, updateValues)
                 createGrid(1)
                 createGrid(0)
+
+        def courseFilter():
+            for label in subjectWindow.grid_slaves():
+                if int(label.grid_info()["row"] > 7):
+                    label.grid_forget()
+
+            filterId = int(idFilterField.get())
+
+            idOption = unitsOption = str()
+
+            dbList.clear()
+            dbList.append(["ID", "CODE", "DESCRIPTION", "UNITS", "SCHEDULE"])
+
+            if idFilterOption.get() == ">":
+                idOption = "$gt"
+            elif idFilterOption.get() == ">=":
+                idOption = "$gte"
+            elif idFilterOption.get() == "<":
+                idOption = "$lt"
+            elif idFilterOption.get() == "<=":
+                idOption = "$lte"
+            elif idFilterOption.get() == "!=":
+                idOption = "$ne"
+            elif idFilterOption.get() == "=":
+                idOption = "$eq"
+
+            if unitsFilterOption.get() == ">":
+                unitsOption = "$gt"
+            elif unitsFilterOption.get() == ">=":
+                unitsOption = "$gte"
+            elif unitsFilterOption.get() == "<":
+                unitsOption = "$lt"
+            elif unitsFilterOption.get() == "<=":
+                unitsOption = "$lte"
+            elif unitsFilterOption.get() == "!=":
+                unitsOption = "$ne"
+            elif unitsFilterOption.get() == "=":
+                unitsOption = "$eq"
+            codeStart = f"^{codeFilterField.get()}"
+            descStart = f"^{descriptionFilterField.get()}"
+            units = int(unitsFilterField.get())
+            schedStart = f"^{scheduleFilterField.get()}"
+            coursesCursor = collection.find(
+                {
+                    "id": {idOption: filterId},
+                    "code": {"$regex": codeStart},
+                    "description": {"$regex": descStart},
+                    "units": {unitsOption: units},
+                    "schedule": {"$regex": schedStart},
+                }
+            )
+            for entry in coursesCursor:
+                entryId = entry["id"]
+                entryCode = entry["code"]
+                entryDesc = entry["description"]
+                entryUnits = entry["units"]
+                entrySchedule = entry["schedule"]
+                dbList.append(
+                    [entryId, entryCode, entryDesc, entryUnits, entrySchedule]
+                )
+
+            for i in range(len(dbList)):
+                for j in range(len(dbList[0])):
+                    mgrid = tk.Entry(subjectWindow, width=10)
+                    mgrid.insert(tk.END, dbList[i][j])
+                    mgrid._values = mgrid.get(), i
+                    mgrid.grid(column=j + 6, row=i + 8)
+                    mgrid.bind("<Button-1>", callback)
 
         # * subjectWindow
         subjectWindow = tk.Tk()
@@ -169,7 +236,7 @@ class SubjectForm:
         scheduleLabel.grid(column=1, row=6)
 
         # * Enter Fields
-        courseId = tk.StringVar(subjectWindow)
+        courseId = tk.IntVar(subjectWindow)
         idField = tk.Entry(subjectWindow, textvariable=courseId, state=tk.DISABLED)
         idField.grid(column=2, row=2)
 
@@ -221,45 +288,56 @@ class SubjectForm:
         idFilterDrpDwn.grid(column=6, row=5)
 
         # * ID Filter Text Field
-        idFilter = tk.IntVar()
+        idFilter = tk.IntVar(subjectWindow)
         idFilterField = tk.Entry(subjectWindow, textvariable=idFilter, width=10)
         idFilterField.grid(column=6, row=6)
 
-        # * Name Start Text Field
-        nameStartLabel = tk.Label(subjectWindow, text="Name Start", bg="orange")
-        nameStartLabel.grid(column=7, row=3)
-        nameStartFilter = tk.StringVar()
-        nameStartFilterField = tk.Entry(
-            subjectWindow, textvariable=nameStartFilter, width=10
-        )
-        nameStartFilterField.grid(column=7, row=4)
+        # * Code Text Field
+        codeFilterLabel = tk.Label(subjectWindow, text="Code", bg="orange")
+        codeFilterLabel.grid(column=7, row=5)
+        codeFilter = tk.StringVar(subjectWindow)
+        codeFilterField = tk.Entry(subjectWindow, textvariable=codeFilter, width=10)
+        codeFilterField.grid(column=7, row=6)
 
-        # * Name End Text Field
-        nameEndLabel = tk.Label(subjectWindow, text="Name End", bg="orange")
-        nameEndLabel.grid(column=7, row=5)
-        nameEndFilter = tk.StringVar()
-        nameEndFilterField = tk.Entry(
-            subjectWindow, textvariable=nameEndFilter, width=10
+        # * Description Start Text Field
+        descFilterLabel = tk.Label(subjectWindow, text="Description", bg="orange")
+        descFilterLabel.grid(column=8, row=5)
+        descriptionFilter = tk.StringVar(subjectWindow)
+        descriptionFilterField = tk.Entry(
+            subjectWindow, textvariable=descriptionFilter, width=10
         )
-        nameEndFilterField.grid(column=7, row=6)
+        descriptionFilterField.grid(column=8, row=6)
 
-        # * Mail Start Text Field
-        mailStartLabel = tk.Label(subjectWindow, text="Mail Start", bg="orange")
-        mailStartLabel.grid(column=8, row=5)
-        mailStartFilter = tk.StringVar()
-        mailStartFilterField = tk.Entry(
-            subjectWindow, textvariable=mailStartFilter, width=10
+        # * Units Filter Option Menu
+        unitsFilterLabel = tk.Label(subjectWindow, text="Units", bg="orange")
+        unitsFilterLabel.grid(column=9, row=4)
+        unitsFilterOptions = [">", ">=", "<", "<=", "!=", "="]
+        unitsFilterOption = tk.StringVar(subjectWindow)
+        unitsFilterOption.set(unitsFilterOptions[0])
+        unitsFilterDrpDwn = tk.OptionMenu(
+            subjectWindow, unitsFilterOption, *unitsFilterOptions
         )
-        mailStartFilterField.grid(column=8, row=6)
+        unitsFilterDrpDwn.grid(column=9, row=5)
 
-        # * Program Text Field
-        programLabel = tk.Label(subjectWindow, text="Program", bg="orange")
-        programLabel.grid(column=9, row=5)
-        programFilter = tk.StringVar()
-        programFilterField = tk.Entry(
-            subjectWindow, textvariable=programFilter, width=10
+        # * Units Text Field
+        unitsFilter = tk.IntVar(subjectWindow)
+        unitsFilterField = tk.Entry(subjectWindow, textvariable=unitsFilter, width=10)
+        unitsFilterField.grid(column=9, row=6)
+
+        # * Schedule Text Field
+        scheduleLabel = tk.Label(subjectWindow, text="schedule", bg="orange")
+        scheduleLabel.grid(column=10, row=5)
+        scheduleFilter = tk.StringVar(subjectWindow)
+        scheduleFilterField = tk.Entry(
+            subjectWindow, textvariable=scheduleFilter, width=10
         )
-        programFilterField.grid(column=9, row=6)
+        scheduleFilterField.grid(column=10, row=6)
+
+        # * Filter Button
+        filterBtn = tk.Button(
+            subjectWindow, text="Filter", command=courseFilter, width=10, bg="deep pink"
+        )
+        filterBtn.grid(column=11, row=6)
 
         # ! End of Filters
 
