@@ -20,12 +20,6 @@ class TeacherForm:
             teacherName.set(dbList[li[1]][1])
             teacherDepartment.set(dbList[li[1]][2])
             teacherContact.set(dbList[li[1]][3])
-            print(
-                dbList[li[1]][0],
-                dbList[li[1]][1],
-                dbList[li[1]][2],
-                dbList[li[1]][3],
-            )
 
         def createGrid(x):
             dbList.clear()
