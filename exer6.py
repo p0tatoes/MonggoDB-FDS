@@ -35,7 +35,6 @@ def callback2(event):
     li = event.widget._values
     global cId
     cId = cloneEnrollList[li[1]][0]
-    print(cloneEnrollList[li[1]])
 
 
 def createGrid(x):
