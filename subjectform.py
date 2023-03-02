@@ -5,6 +5,8 @@ import pymongo
 
 
 class SubjectForm:
+    cId = 0
+
     def subjectform():
         client = pymongo.MongoClient("mongodb://127.0.0.1:27017")
 
@@ -21,13 +23,8 @@ class SubjectForm:
             courseDescription.set(dbList[li[1]][2])
             courseUnits.set(dbList[li[1]][3])
             courseSchedule.set(dbList[li[1]][4])
-            print(
-                dbList[li[1]][0],
-                dbList[li[1]][1],
-                dbList[li[1]][2],
-                dbList[li[1]][3],
-                dbList[li[1]][4],
-            )
+
+            SubjectForm.cId = dbList[li[1]][0]
 
         def createGrid(x):
             dbList.clear()
