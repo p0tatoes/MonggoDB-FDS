@@ -237,7 +237,6 @@ def studentFilter():
             mgrid.bind("<Button-1>", callback)
 
 
-# TODO: Create enroll and drop functionality
 def enrollSub():
     cId = SubjectForm.cId
     option = messagebox.askokcancel("Enroll", f"Enroll subject #{cId}")
@@ -438,7 +437,6 @@ subjectsLabel = tk.Label(
 subjectsLabel.grid(column=14, row=2, columnspan=6)
 
 # * Buttons
-# TODO: Add "enroll" and "drop" buttons
 enrollBtn = tk.Button(text="Enroll", command=enrollSub, width=10, bg="deep pink")
 enrollBtn.grid(row=5, column=15)
 
