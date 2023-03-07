@@ -36,6 +36,66 @@ def callback2(event):
     global cId
     cId = cloneEnrollList[li[1]][0]
 
+    def saveGrade():
+        findQuery = {"id": sId, "enrolled.courseId": cId}
+        updateOperation = {
+            "$set": {
+                "enrolled.$.grade": {
+                    "prelim": prelimField.get(),
+                    "midterm": midtermField.get(),
+                    "prefinal": prefinalField.get(),
+                    "final": finalField.get(),
+                }
+            }
+        }
+        collection.update_one(findQuery, updateOperation)
+
+    header1 = tk.Entry(window, width=10, font="Roboto 10 bold")
+    header1.insert(tk.END, "PRELIM")
+    header2 = tk.Entry(window, width=10, font="Roboto 10 bold")
+    header2.insert(tk.END, "MIDTERM")
+    header3 = tk.Entry(window, width=10, font="Roboto 10 bold")
+    header3.insert(tk.END, "PREFINAL")
+    header4 = tk.Entry(window, width=10, font="Roboto 10 bold")
+    header4.insert(tk.END, "FINAL")
+    header1.grid(column=20, row=7)
+    header2.grid(column=21, row=7)
+    header3.grid(column=22, row=7)
+    header4.grid(column=23, row=7)
+
+    prelim = tk.StringVar(master=window)
+    midterm = tk.StringVar(master=window)
+    prefinal = tk.StringVar(master=window)
+    final = tk.StringVar(master=window)
+
+    prelimField = tk.Entry(master=window, textvariable=prelim, width=10)
+    midtermField = tk.Entry(master=window, textvariable=midterm, width=10)
+    prefinalField = tk.Entry(master=window, textvariable=prefinal, width=10)
+    finalField = tk.Entry(master=window, textvariable=final, width=10)
+    saveGradeBtn = tk.Button(
+        master=window, text="Save", width=10, command=saveGrade, bg="deep pink"
+    )
+
+    saveGradeBtn.grid(column=20, row=5)
+    prelimField.grid(column=20, row=8)
+    midtermField.grid(column=21, row=8)
+    prefinalField.grid(column=22, row=8)
+    finalField.grid(column=23, row=8)
+
+    gradeCursor = list(
+        collection.find({"id": sId, "enrolled.courseId": cId}, {"enrolled.grade.$": 1})
+    )
+
+    for entry in gradeCursor:
+        try:
+            prelim.set(entry["enrolled"][0]["grade"]["prelim"])
+            midterm.set(entry["enrolled"][0]["grade"]["midterm"])
+            prefinal.set(entry["enrolled"][0]["grade"]["prefinal"])
+            final.set(entry["enrolled"][0]["grade"]["final"])
+            saveGradeBtn.config(text="Update")
+        except:
+            break
+
 
 def createGrid(x):
     dbList.clear()
@@ -46,7 +106,7 @@ def createGrid(x):
             {
                 "$lookup": {
                     "from": "courses",
-                    "localField": "enrolled",
+                    "localField": "enrolled.courseId",
                     "foreignField": "id",
                     "as": "subjects",
                 }
@@ -95,7 +155,7 @@ def createSubjectGrid(x):
             {
                 "$lookup": {
                     "from": "courses",
-                    "localField": "enrolled",
+                    "localField": "enrolled.courseId",
                     "foreignField": "id",
                     "as": "subjects",
                 }
@@ -242,7 +302,7 @@ def enrollSub():
     option = messagebox.askokcancel("Enroll", f"Enroll subject #{cId}")
     if option:
         searchQuery = {"id": sId}
-        updateQuery = {"$push": {"enrolled": cId}}
+        updateQuery = {"$push": {"enrolled": {"courseId": cId}}}
         collection.update_one(searchQuery, updateQuery)
         createGrid(1)
         createGrid(0)
@@ -254,7 +314,7 @@ def dropSub():
     option = messagebox.askokcancel("Drop", f"Drop subject #{cId}")
     if option:
         searchQuery = {"id": sId}
-        updateQuery = {"$pull": {"enrolled": cId}}
+        updateQuery = {"$pull": {"enrolled": {"courseId": cId}}}
         collection.update_one(searchQuery, updateQuery)
         createGrid(1)
         createGrid(0)
